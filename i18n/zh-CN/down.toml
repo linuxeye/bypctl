@@ -1,0 +1,3 @@
+down_help = "停止并删除容器、网络"
+down_succ = "✔ 移除容器 %s"
+down_err = "停止并删除报错: %s"

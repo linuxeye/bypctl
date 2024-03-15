@@ -1,0 +1,3 @@
+stop_help = "Stop services"
+stop_err = "Stop Container error: %s"
+stop_succ = "✔ Container %s Stopped"

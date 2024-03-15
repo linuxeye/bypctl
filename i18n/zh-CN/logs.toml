@@ -1,0 +1,2 @@
+logs_help = "查看容器的输出"
+logs_follow_help = "持续日志输出"

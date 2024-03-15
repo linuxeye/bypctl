@@ -1,0 +1,4 @@
+root_help = "bypanel部署命令管理"
+cmd_pipe_err = "无法创建标准输出管道: %s"
+cmd_start_err = "无法启动命令: %s"
+cmd_exec_err = "命令执行失败: %s"

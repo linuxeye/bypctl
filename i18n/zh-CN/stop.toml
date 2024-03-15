@@ -1,0 +1,3 @@
+stop_help = "停止服务"
+stop_err = "停止容器报错: %s"
+stop_succ = "✔ 停止容器 %s"

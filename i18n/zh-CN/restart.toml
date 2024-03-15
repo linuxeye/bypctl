@@ -1,0 +1,3 @@
+restart_help = "重启服务容器"
+restart_succ = "✔ 已重启容器 %s"
+restart_err = "重启容器报错: %s"
