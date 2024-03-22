@@ -1,6 +1,7 @@
 package util
 
 import (
+	"regexp"
 	"strings"
 )
 
@@ -39,4 +40,27 @@ func RemoveStrings(slice []string, removeList []string) []string {
 		}
 	}
 	return result
+}
+
+func ValidateDomains(domains []string) bool {
+	// 构建一个正则表达式模式，用于匹配域名
+	pattern := `^(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$`
+
+	// 编译正则表达式模式
+	regexpPattern, err := regexp.Compile(pattern)
+	if err != nil {
+		// 如果正则表达式编译失败，则返回 false 或进行错误处理
+		return false
+	}
+
+	// 遍历传入的域名列表，检查每个域名是否满足正则表达式模式
+	for _, domain := range domains {
+		if !regexpPattern.MatchString(domain) {
+			// 如果有任何一个域名不满足正则表达式模式，则返回 false
+			return false
+		}
+	}
+
+	// 如果所有域名都满足正则表达式模式，则返回 true
+	return true
 }

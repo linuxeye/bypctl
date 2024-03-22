@@ -167,6 +167,28 @@ func HasCommonElement(list1 []string, list2 []string) bool {
 	return false
 }
 
+// 判断list2是否是list1的子切片（subslice）
+func IsSubSlice(list1, list2 []string) bool {
+	if len(list1) < len(list2) {
+		return false
+	}
+
+	for i := 0; i <= len(list1)-len(list2); i++ {
+		match := true
+		for j := 0; j < len(list2); j++ {
+			if list1[i+j] != list2[j] {
+				match = false
+				break
+			}
+		}
+		if match {
+			return true
+		}
+	}
+
+	return false
+}
+
 // SliceItemIntExist .
 func SliceItemIntExist(target []int, src int) bool {
 	for _, t := range target {

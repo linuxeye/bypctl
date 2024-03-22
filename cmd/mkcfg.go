@@ -7,6 +7,7 @@ import (
 	"bypctl/pkg/global"
 	"bypctl/pkg/i18n"
 	"bypctl/pkg/util"
+	"github.com/gogf/gf/v2/util/gconv"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"os"
@@ -16,45 +17,69 @@ import (
 	"time"
 )
 
-// configCmd represents the config command
-var configCmd = &cobra.Command{
-	Use:   "config",
-	Short: i18n.Translate(`config_help`),
-	Long:  i18n.Translate(`config_help`),
-	Args:  cobra.NoArgs,
+// mkCfgCmd represents the config command
+var mkCfgCmd = &cobra.Command{
+	Use:   "mkcfg [WEB...]",
+	Short: i18n.Translate(`mkcfg_help`),
+	Long:  i18n.Translate(`mkcfg_help`),
 	Run: func(cmd *cobra.Command, args []string) {
-
-		// 设置语言
-		formatLang := []string{"en", "zh-CN"}
-		inputLang := util.ReaderTf("config_select_lang", formatLang, global.Conf.System.Lang)
-		if len(inputLang) == 0 {
-			inputLang = global.Conf.System.Lang
+		var webs []string
+		if len(args) > 0 {
+			if !util.IsSubSlice(constant.Webs, args) {
+				color.PrintRed(i18n.Tf("mkcfg_web_input_err", constant.Webs))
+				os.Exit(1)
+			}
+			webs = args
+		} else {
+			for _, v := range strings.Split(global.Conf.System.ComposeProfiles, ",") {
+				switch v {
+				case "nginx", "openresty", "apache", "caddy", "pingora":
+					webs = []string{v}
+				}
+			}
 		}
-		if !util.SliceItemStrExist(formatLang, inputLang) {
-			color.PrintRed(i18n.Tf("reader_input_err", formatLang))
+		if len(webs) == 0 {
+			color.PrintRed(i18n.Translate("mkcfg_web_err"))
 			os.Exit(1)
 		}
-		if global.Conf.System.Lang != inputLang {
-			viper.Set("LANG", inputLang)
-			global.Conf.System.Lang = inputLang
+
+		// 设置语言
+		inputSSLs := []uint{1, 2, 3}
+		inputSSL := gconv.Uint(util.ReaderTf("mkcfg_ssl", 2))
+		if !util.SliceItemUintExist(inputSSLs, inputSSL) {
+			color.PrintRed(i18n.Tf("mkcfg_input_err", inputSSLs))
+			os.Exit(1)
 		}
 
-		// 设置bypanel路径
-		inputBasePath := util.ReaderTf("config_bypanel_path", global.Conf.System.BasePath)
-		if len(inputBasePath) == 0 {
-			inputBasePath = global.Conf.System.BasePath
+		inputDomains := strings.Split(util.ReaderTf("mkcfg_domain"), ",")
+		for i := range inputDomains {
+			inputDomains[i] = strings.TrimSpace(inputDomains[i])
 		}
 
-		if !strings.HasPrefix(inputBasePath, "/") {
+		if !util.ValidateDomains(inputDomains) {
+			color.PrintRed(i18n.Translate("mkcfg_domain_err"))
+			os.Exit(1)
+		}
+
+		color.PrintGreen(i18n.Tf("mkcfg_domain_list", inputDomains))
+
+		defaultWebroot := filepath.Join(global.Conf.System.VolumePath, "webroot", inputDomains[0])
+		inputWebroot := util.ReaderTf("mkcfg_webroot", defaultWebroot)
+		if len(inputWebroot) == 0 {
+			inputWebroot = defaultWebroot
+		}
+
+		if !strings.HasPrefix(inputWebroot, filepath.Join(global.Conf.System.VolumePath, "webroot")) {
 			color.PrintRed(i18n.Translate("reader_path_err"))
 			os.Exit(1)
 		}
 
-		if global.Conf.System.BasePath != inputBasePath {
-			viper.Set("BASE_PATH", inputBasePath)
-			global.Conf.System.BasePath = inputBasePath
-			// to do mv path
-		}
+		color.PrintGreen(i18n.Tf("mkcfg_domain_webroot", inputWebroot))
+		color.PrintYellow(i18n.Translate("mkcfg_webroot_permission"))
+
+		f := files.NewFile()
+		f.CreateDir(inputWebroot, 0755)
+		f.ChownR(inputWebroot, global.Conf.System.Uid, global.Conf.System.Gid, true)
 
 		// 设置volume路径
 		inputVolumePath := util.ReaderTf("config_volume_path", global.Conf.System.VolumePath)
@@ -99,7 +124,7 @@ var configCmd = &cobra.Command{
 		appList := strings.Split(inputApps, ",")
 
 		// 判断应用输入是否正确
-		f := files.NewFile()
+		// f := files.NewFile()
 		for _, v := range constant.PHPs {
 			appDir := filepath.Join(global.Conf.System.BasePath, "app", v)
 			// 判断php应用时，目录结构单独处理
@@ -319,5 +344,5 @@ var configCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(configCmd)
+	rootCmd.AddCommand(mkCfgCmd)
 }
