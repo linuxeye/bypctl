@@ -6,12 +6,12 @@ import (
 	"github.com/gogf/gf/v2/i18n/gi18n"
 )
 
-func Translate(content string) string {
+func Translate(format string) string {
 	ctx := gi18n.WithLanguage(context.TODO(), global.Conf.System.Lang)
-	return gi18n.Translate(ctx, content)
+	return gi18n.Translate(ctx, format)
 }
 
-func Tf(content string, values ...any) string {
+func Tf(format string, values ...any) string {
 	ctx := gi18n.WithLanguage(context.TODO(), global.Conf.System.Lang)
-	return gi18n.Tf(ctx, content, values...)
+	return gi18n.Tf(ctx, format, values...)
 }

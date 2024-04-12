@@ -348,3 +348,30 @@ func CompareEq(a, b []string) bool {
 	}
 	return true
 }
+
+// UniqueString 去重
+func UniqueString(m []string) []string {
+	d := make([]string, 0)
+	tempMap := make(map[string]bool, len(m))
+	for _, v := range m { // 以值作为键名
+		if tempMap[v] == false {
+			tempMap[v] = true
+			d = append(d, v)
+		}
+	}
+	return d
+}
+
+func GetUniqueDomains(hosts []string) []string {
+	result := make([]string, 0)
+
+	for _, host := range hosts {
+		parts := strings.Split(host, ".")
+		if len(parts) == 2 {
+			result = append(result, host, "*."+host)
+		} else if len(parts) > 2 {
+			result = append(result, "*."+strings.Join(parts[1:], "."))
+		}
+	}
+	return UniqueString(result)
+}

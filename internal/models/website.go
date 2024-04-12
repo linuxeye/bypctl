@@ -24,13 +24,13 @@ type WebsiteAcmeAccount struct {
 	UpdatedAt  time.Time `json:"updatedAt"`
 }
 
-// type WebsiteCA struct {
-// 	Id         uint   `gorm:"primarykey;AUTO_INCREMENT" json:"id"`
-// 	CSR        string `gorm:"not null;" json:"csr"`
-// 	Name       string `gorm:"not null;" json:"name"`
-// 	PrivateKey string `gorm:"not null" json:"privateKey"`
-// 	KeyType    string `gorm:"not null;default:2048" json:"keyType"`
-// }
+type WebsiteCA struct {
+	Id         uint   `gorm:"primarykey;AUTO_INCREMENT" json:"id"`
+	CSR        string `gorm:"not null;" json:"csr"`
+	Name       string `gorm:"not null;" json:"name"`
+	PrivateKey string `gorm:"not null" json:"privateKey"`
+	KeyType    string `gorm:"not null;default:2048" json:"keyType"`
+}
 
 func (w WebsiteAcmeAccount) TableName() string {
 	return "website_acme_accounts"

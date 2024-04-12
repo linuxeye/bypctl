@@ -106,7 +106,7 @@ func (c *Core) Close(ctx context.Context) (err error) {
 	if err = c.cache.Close(ctx); err != nil {
 		return err
 	}
-	c.links.LockFunc(func(m map[string]interface{}) {
+	c.links.LockFunc(func(m map[any]any) {
 		for k, v := range m {
 			if db, ok := v.(*sql.DB); ok {
 				err = db.Close()
@@ -414,7 +414,7 @@ func (c *Core) fieldsToSequence(ctx context.Context, table string, fields []stri
 	return fieldsResultInSequence, nil
 }
 
-// DoInsert inserts or updates data forF given table.
+// DoInsert inserts or updates data for given table.
 // This function is usually used for custom interface definition, you do not need call it manually.
 // The parameter `data` can be type of map/gmap/struct/*struct/[]map/[]struct, etc.
 // Eg:

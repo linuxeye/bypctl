@@ -113,7 +113,7 @@ github.com/go-gormigrate/gormigrate/v2
 github.com/go-jose/go-jose/v4
 github.com/go-jose/go-jose/v4/cipher
 github.com/go-jose/go-jose/v4/json
-# github.com/go-logr/logr v1.2.4
+# github.com/go-logr/logr v1.2.3
 ## explicit; go 1.16
 github.com/go-logr/logr
 github.com/go-logr/logr/funcr
@@ -131,7 +131,7 @@ github.com/goccy/go-json/internal/encoder/vm_color_indent
 github.com/goccy/go-json/internal/encoder/vm_indent
 github.com/goccy/go-json/internal/errors
 github.com/goccy/go-json/internal/runtime
-# github.com/gogf/gf/v2 v2.6.4
+# github.com/gogf/gf/v2 v2.7.0
 ## explicit; go 1.18
 github.com/gogf/gf/v2
 github.com/gogf/gf/v2/container/garray
@@ -202,6 +202,7 @@ github.com/gogf/gf/v2/os/gfile
 github.com/gogf/gf/v2/os/gfpool
 github.com/gogf/gf/v2/os/gfsnotify
 github.com/gogf/gf/v2/os/glog
+github.com/gogf/gf/v2/os/gmetric
 github.com/gogf/gf/v2/os/gmlock
 github.com/gogf/gf/v2/os/gproc
 github.com/gogf/gf/v2/os/gres
@@ -278,7 +279,7 @@ github.com/jmespath/go-jmespath
 # github.com/json-iterator/go v1.1.12
 ## explicit; go 1.12
 github.com/json-iterator/go
-# github.com/klauspost/compress v1.17.7
+# github.com/klauspost/compress v1.17.8
 ## explicit; go 1.20
 github.com/klauspost/compress
 github.com/klauspost/compress/flate
@@ -303,7 +304,7 @@ github.com/mattn/go-colorable
 # github.com/mattn/go-isatty v0.0.20
 ## explicit; go 1.15
 github.com/mattn/go-isatty
-# github.com/mattn/go-runewidth v0.0.15
+# github.com/mattn/go-runewidth v0.0.13
 ## explicit; go 1.9
 github.com/mattn/go-runewidth
 # github.com/mholt/archiver/v4 v4.0.0-alpha.8
@@ -356,8 +357,8 @@ github.com/pkg/errors
 # github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec
 ## explicit; go 1.12
 github.com/remyoudompheng/bigfft
-# github.com/rivo/uniseg v0.4.4
-## explicit; go 1.18
+# github.com/rivo/uniseg v0.2.0
+## explicit; go 1.12
 github.com/rivo/uniseg
 # github.com/sagikazarmark/locafero v0.4.0
 ## explicit; go 1.20
@@ -433,9 +434,8 @@ go.opentelemetry.io/otel/internal/attribute
 go.opentelemetry.io/otel/internal/baggage
 go.opentelemetry.io/otel/internal/global
 go.opentelemetry.io/otel/propagation
-go.opentelemetry.io/otel/semconv/internal
 go.opentelemetry.io/otel/semconv/v1.17.0
-go.opentelemetry.io/otel/semconv/v1.4.0
+go.opentelemetry.io/otel/semconv/v1.18.0
 # go.opentelemetry.io/otel/sdk v1.14.0
 ## explicit; go 1.18
 go.opentelemetry.io/otel/sdk/instrumentation
@@ -534,7 +534,7 @@ gopkg.in/natefinch/lumberjack.v2
 # gopkg.in/yaml.v3 v3.0.1
 ## explicit
 gopkg.in/yaml.v3
-# gorm.io/gorm v1.25.8
+# gorm.io/gorm v1.25.9
 ## explicit; go 1.18
 gorm.io/gorm
 gorm.io/gorm/callbacks

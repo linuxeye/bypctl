@@ -6,15 +6,15 @@ import (
 	"bypctl/pkg/files"
 	"bypctl/pkg/global"
 	"bypctl/pkg/i18n"
+	"bypctl/pkg/ssl"
 	"bypctl/pkg/util"
+	"fmt"
 	"github.com/gogf/gf/v2/util/gconv"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
+	"io/fs"
 	"os"
 	"path/filepath"
-	"runtime"
 	"strings"
-	"time"
 )
 
 // mkCfgCmd represents the config command
@@ -78,268 +78,103 @@ var mkCfgCmd = &cobra.Command{
 		color.PrintYellow(i18n.Translate("mkcfg_webroot_permission"))
 
 		f := files.NewFile()
-		f.CreateDir(inputWebroot, 0755)
-		f.ChownR(inputWebroot, global.Conf.System.Uid, global.Conf.System.Gid, true)
-
-		// 设置volume路径
-		inputVolumePath := util.ReaderTf("config_volume_path", global.Conf.System.VolumePath)
-		if len(inputVolumePath) == 0 {
-			inputVolumePath = global.Conf.System.VolumePath
+		if err := f.CreateDir(inputWebroot, fs.ModeDir); err != nil {
+			color.PrintRed(err.Error())
+			// os.Exit(1)
+		}
+		if err := f.ChownR(inputWebroot, global.Conf.System.Uid, global.Conf.System.Gid, true); err != nil {
+			color.PrintRed(err.Error())
+			// os.Exit(1)
 		}
 
-		if !strings.HasPrefix(inputVolumePath, "/") {
-			color.PrintRed(i18n.Translate("reader_path_err"))
-			os.Exit(1)
-		}
-
-		if global.Conf.System.VolumePath != inputVolumePath {
-			viper.Set("VOLUME_PATH", inputVolumePath)
-			global.Conf.System.VolumePath = inputVolumePath
-			// to do mv path
-		}
-
-		// Timezone for Docker container
-		inputTimezone := util.ReaderTf("config_timezone", global.Conf.System.Timezone)
-		if len(inputTimezone) == 0 {
-			inputTimezone = global.Conf.System.Timezone
-		}
-
-		_, err := time.LoadLocation(inputTimezone)
-		if err != nil {
-			color.PrintRed(i18n.Tf("reader_msg_err", err.Error()))
-			os.Exit(1)
-		}
-
-		if global.Conf.System.Timezone != inputTimezone {
-			viper.Set("TIMEZONE", inputTimezone)
-			global.Conf.System.Timezone = inputTimezone
-		}
-
-		// 设置COMPOSE_PROFILES
-		inputApps := util.ReaderTf("config_compose_profiles", global.Conf.System.ComposeProfiles)
-		if len(inputApps) == 0 {
-			inputApps = global.Conf.System.ComposeProfiles
-		}
-
-		appList := strings.Split(inputApps, ",")
-
-		// 判断应用输入是否正确
-		// f := files.NewFile()
-		for _, v := range constant.PHPs {
-			appDir := filepath.Join(global.Conf.System.BasePath, "app", v)
-			// 判断php应用时，目录结构单独处理
-			if util.SliceItemStrExist(constant.PHPs, v) {
-				appDir = filepath.Join(global.Conf.System.BasePath, "app", "php", v[3:4]+"."+v[4:])
-			}
-
-			if !f.IsDir(appDir) {
-				color.PrintRed(i18n.Tf("config_app_err", v))
-				os.Exit(1)
+		// 域名重定向
+		var inputRedirectFlag string
+		if len(inputDomains) >= 2 {
+			if util.SliceItemUintExist([]uint{2, 3}, inputSSL) {
+				inputRedirectFlag = strings.ToLower(util.ReaderTf("mkcfg_redirect_flag", inputDomains[1:], inputDomains[0]))
+				if !util.SliceItemStrExist(constant.FlagYN, inputRedirectFlag) {
+					color.PrintRed(i18n.Tf("reader_input_err", constant.FlagYN))
+				}
 			}
 		}
 
-		// 判断web只能选择1个
-		if util.CheckElements(constant.Webs, appList) {
-			color.PrintRed(i18n.Translate("config_web_err"))
-			os.Exit(1)
-		}
-
-		if global.Conf.System.ComposeProfiles != inputApps {
-			viper.Set("COMPOSE_PROFILES", inputApps)
-			global.Conf.System.ComposeProfiles = inputApps
-		}
-
-		// Nginx
-		if util.SliceItemStrExist(appList, "nginx") {
-			ngxDir := filepath.Join(global.Conf.System.BasePath, "app", "nginx")
-			ngxVers, err := files.GetSubFileNames(ngxDir)
-			if err != nil {
-				color.PrintRed(i18n.Tf("reader_msg_err", err.Error()))
-				os.Exit(1)
-			}
-			inputNgxVer := util.ReaderTf("config_select_ver", "Nginx", ngxVers, global.Conf.System.NginxVer)
-			if len(inputNgxVer) == 0 {
-				inputNgxVer = global.Conf.System.NginxVer
-			}
-
-			if !f.IsDir(filepath.Join(ngxDir, inputNgxVer)) {
-				color.PrintRed(i18n.Tf("config_ver_err", inputNgxVer))
-				os.Exit(1)
-			}
-
-			if global.Conf.System.NginxVer != inputNgxVer {
-				viper.Set("NGINX_SERVER", inputNgxVer)
-				global.Conf.System.NginxVer = inputNgxVer
+		// https跳转
+		var inputToHttpsFlag string
+		if util.SliceItemUintExist([]uint{2, 3}, inputSSL) {
+			inputToHttpsFlag = strings.ToLower(util.ReaderTf("mkcfg_to_https_flag"))
+			if !util.SliceItemStrExist(constant.FlagYN, inputToHttpsFlag) {
+				color.PrintRed(i18n.Tf("reader_input_err", constant.FlagYN))
 			}
 		}
 
-		// MySQL
-		if util.SliceItemStrExist(appList, "mysql") {
-			// 版本
-			mySQLDir := filepath.Join(global.Conf.System.BasePath, "app", "mysql")
-			mySQLVers, err := files.GetSubFileNames(mySQLDir)
-			if err != nil {
-				color.PrintRed(i18n.Tf("reader_msg_err", err.Error()))
+		if util.SliceItemUintExist([]uint{2, 3}, inputSSL) {
+
+			// var (
+			// 	country          string
+			// 	organization     string
+			// 	organizationUint string
+			// 	province         string
+			// 	city             string
+			// )
+			if util.SliceItemUintExist([]uint{2, 3}, inputSSL) {
+				country := util.ReaderTf("mkcfg_self_ssl_country")
+				if len(country) == 0 {
+					country = "CN"
+				}
+				province := util.ReaderTf("mkcfg_self_ssl_province")
+				if len(province) == 0 {
+					province = "Shanghai"
+				}
+
+				city := util.ReaderTf("mkcfg_self_ssl_city")
+				if len(city) == 0 {
+					city = "Shanghai"
+				}
+
+				organization := util.ReaderTf("mkcfg_self_ssl_organization")
+				if len(organization) == 0 {
+					organization = "Example Inc."
+				}
+
+				organizationUint := util.ReaderTf("mkcfg_self_ssl_organizationuint")
+				if len(organizationUint) == 0 {
+					organizationUint = "IT Dept."
+				}
+
+				if err := ssl.GenerateSelfPem(ssl.SelfSSL{
+					Domains:          inputDomains,
+					CommonName:       inputDomains[0],
+					Country:          country,
+					Organization:     organization,
+					OrganizationUint: organizationUint,
+					Name:             inputDomains[0],
+					KeyType:          "P256",
+					Province:         province,
+					City:             city,
+					CertificatePath:  filepath.Join(global.Conf.System.BasePath, "cfg", webs[0], "cert", inputDomains[0]+".crt"),
+					PrivateKeyPath:   filepath.Join(global.Conf.System.BasePath, "cfg", webs[0], "cert", inputDomains[0]+".key"),
+				}); err != nil {
+					color.PrintRed(err.Error())
+				}
+			}
+		}
+
+		if util.SliceItemStrExist([]string{"nginx", "openresty"}, webs[0]) {
+			antiHotlinkFlag := strings.ToLower(util.ReaderTf("mkcfg_hotlink"))
+			if !util.SliceItemStrExist(constant.FlagYN, antiHotlinkFlag) {
+				color.PrintRed(i18n.Tf("reader_input_err", constant.FlagYN))
 				os.Exit(1)
 			}
 
-			if runtime.GOARCH == "arm64" {
-				mySQLVers = util.RemoveStrings(mySQLVers, constant.MySQLNotArm)
-			}
-
-			inputMySQLVer := util.ReaderTf("config_select_ver", "MySQL", mySQLVers, global.Conf.System.MySQLVer)
-			if len(inputMySQLVer) == 0 {
-				inputMySQLVer = global.Conf.System.MySQLVer
-			}
-
-			if !f.IsDir(filepath.Join(mySQLDir, inputMySQLVer)) {
-				color.PrintRed(i18n.Tf("config_ver_err", inputMySQLVer))
-				os.Exit(1)
-			}
-
-			if global.Conf.System.MySQLVer != inputMySQLVer {
-				viper.Set("MYSQL_SERVER", inputMySQLVer)
-				global.Conf.System.MySQLVer = inputMySQLVer
-			}
-
-			// 密码
-			inputDBRootPwd := util.ReaderTf("config_db_pwd", "MySQL", "root", global.Conf.System.MySQLRootPwd)
-			if len(inputDBRootPwd) == 0 {
-				inputDBRootPwd = global.Conf.System.MySQLRootPwd
-			}
-
-			if len(inputDBRootPwd) < 5 {
-				color.PrintRed(i18n.Translate("config_db_pwd_err"))
-				os.Exit(1)
-			}
-
-			if global.Conf.System.MySQLRootPwd != inputDBRootPwd {
-				viper.Set("MYSQL_ROOT_PASSWORD", inputDBRootPwd)
-				global.Conf.System.MySQLRootPwd = inputDBRootPwd
+			inputRewriteFlag := strings.ToLower(util.ReaderTf("mkcfg_rewrite_flag"))
+			if !util.SliceItemStrExist(constant.FlagYN, inputRewriteFlag) {
+				color.PrintRed(i18n.Tf("reader_input_err", constant.FlagYN))
 			}
 		}
 
-		// PostGreSQL
-		if util.SliceItemStrExist(appList, "postgresql") {
-			// 版本
-			pgSQLDir := filepath.Join(global.Conf.System.BasePath, "app", "postgresql")
-			pgsqlVers, err := files.GetSubFileNames(pgSQLDir)
-			if err != nil {
-				color.PrintRed(i18n.Tf("reader_msg_err", err.Error()))
-				os.Exit(1)
-			}
-			inputPGSQLVer := util.ReaderTf("config_select_ver", "PostgreSQL", pgsqlVers, global.Conf.System.PGSQLVer)
-			if len(inputPGSQLVer) == 0 {
-				inputPGSQLVer = global.Conf.System.PGSQLVer
-			}
+		domains := util.GetUniqueDomains(inputDomains)
+		fmt.Println("domains---->", domains)
 
-			if !f.IsDir(filepath.Join(pgSQLDir, inputPGSQLVer)) {
-				color.PrintRed(i18n.Tf("config_ver_err", inputPGSQLVer))
-				os.Exit(1)
-			}
-
-			if global.Conf.System.PGSQLVer != inputPGSQLVer {
-				viper.Set("PGSQL_SERVER", inputPGSQLVer)
-				global.Conf.System.PGSQLVer = inputPGSQLVer
-			}
-
-			// 密码
-			inputDBRootPwd := util.ReaderTf("config_db_pwd", "PGSQL", "postgres", global.Conf.System.PGSQLRootPwd)
-			if len(inputDBRootPwd) == 0 {
-				inputDBRootPwd = global.Conf.System.PGSQLRootPwd
-			}
-
-			if len(inputDBRootPwd) < 5 {
-				color.PrintRed(i18n.Translate("config_db_pwd_err"))
-				os.Exit(1)
-			}
-
-			if global.Conf.System.PGSQLRootPwd != inputDBRootPwd {
-				viper.Set("PGSQL_ROOT_USER", inputDBRootPwd)
-				global.Conf.System.PGSQLRootPwd = inputDBRootPwd
-			}
-		}
-
-		// MongoDB
-		if util.SliceItemStrExist(appList, "mongo") {
-			// 版本
-			mongoDir := filepath.Join(global.Conf.System.BasePath, "app", "mongo")
-			mongoVers, err := files.GetSubFileNames(mongoDir)
-			if err != nil {
-				color.PrintRed(i18n.Tf("reader_msg_err", err.Error()))
-				os.Exit(1)
-			}
-			inputMongoLVer := util.ReaderTf("config_select_ver", "MongoDB", mongoVers, global.Conf.System.MongoVer)
-			if len(inputMongoLVer) == 0 {
-				inputMongoLVer = global.Conf.System.MongoVer
-			}
-
-			if !f.IsDir(filepath.Join(mongoDir, inputMongoLVer)) {
-				color.PrintRed(i18n.Tf("config_ver_err", inputMongoLVer))
-				os.Exit(1)
-			}
-
-			if global.Conf.System.MongoVer != inputMongoLVer {
-				viper.Set("MONGO_SERVER", inputMongoLVer)
-				global.Conf.System.MongoVer = inputMongoLVer
-			}
-		}
-
-		// Redis
-		if util.SliceItemStrExist(appList, "redis") {
-			// 版本
-			redisDir := filepath.Join(global.Conf.System.BasePath, "app", "redis")
-			redisVers, err := files.GetSubFileNames(redisDir)
-			if err != nil {
-				color.PrintRed(i18n.Tf("reader_msg_err", err.Error()))
-				os.Exit(1)
-			}
-			inputRedisLVer := util.ReaderTf("config_select_ver", "Redis", redisVers, global.Conf.System.RedisVer)
-			if len(inputRedisLVer) == 0 {
-				inputRedisLVer = global.Conf.System.RedisVer
-			}
-
-			if !f.IsDir(filepath.Join(redisDir, inputRedisLVer)) {
-				color.PrintRed(i18n.Tf("config_ver_err", inputRedisLVer))
-				os.Exit(1)
-			}
-
-			if global.Conf.System.RedisVer != inputRedisLVer {
-				viper.Set("REDIS_SERVER", inputRedisLVer)
-				global.Conf.System.RedisVer = inputRedisLVer
-			}
-		}
-
-		// Memcached
-		if util.SliceItemStrExist(appList, "memcached") {
-			// 版本
-			memcachedDir := filepath.Join(global.Conf.System.BasePath, "app", "memcached")
-			memcachedVers, err := files.GetSubFileNames(memcachedDir)
-			if err != nil {
-				color.PrintRed(i18n.Tf("reader_msg_err", err.Error()))
-				os.Exit(1)
-			}
-			inputMemcachedLVer := util.ReaderTf("config_select_ver", "Memcached", memcachedVers, global.Conf.System.MemcachedVer)
-			if len(inputMemcachedLVer) == 0 {
-				inputMemcachedLVer = global.Conf.System.MemcachedVer
-			}
-
-			if !f.IsDir(filepath.Join(memcachedDir, inputMemcachedLVer)) {
-				color.PrintRed(i18n.Tf("config_ver_err", inputMemcachedLVer))
-				os.Exit(1)
-			}
-
-			if global.Conf.System.MemcachedVer != inputMemcachedLVer {
-				viper.Set("MEMCACHED_SERVER", inputMemcachedLVer)
-				global.Conf.System.MemcachedVer = inputMemcachedLVer
-			}
-		}
-
-		// 更新配置文件
-		viper.SetConfigType("env")
-		if err := viper.WriteConfig(); err != nil {
-			color.PrintRed(i18n.Tf("config_write_err", err.Error()))
-		}
 	},
 }
 
