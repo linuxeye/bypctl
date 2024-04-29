@@ -534,7 +534,7 @@ gopkg.in/natefinch/lumberjack.v2
 # gopkg.in/yaml.v3 v3.0.1
 ## explicit
 gopkg.in/yaml.v3
-# gorm.io/gorm v1.25.9
+# gorm.io/gorm v1.25.10
 ## explicit; go 1.18
 gorm.io/gorm
 gorm.io/gorm/callbacks

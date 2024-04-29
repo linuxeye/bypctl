@@ -50,10 +50,13 @@ var configCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
+		f := files.NewFile()
 		if global.Conf.System.BasePath != inputBasePath {
 			viper.Set("BASE_PATH", inputBasePath)
-			global.Conf.System.BasePath = inputBasePath
-			// to do mv path
+			if !f.IsExist(inputBasePath) {
+				f.Rename(global.Conf.System.BasePath, inputBasePath)
+				global.Conf.System.BasePath = inputBasePath
+			}
 		}
 
 		// 设置volume路径
@@ -69,8 +72,10 @@ var configCmd = &cobra.Command{
 
 		if global.Conf.System.VolumePath != inputVolumePath {
 			viper.Set("VOLUME_PATH", inputVolumePath)
-			global.Conf.System.VolumePath = inputVolumePath
-			// to do mv path
+			if !f.IsExist(inputVolumePath) {
+				f.Rename(global.Conf.System.VolumePath, inputVolumePath)
+				global.Conf.System.VolumePath = inputVolumePath
+			}
 		}
 
 		// Timezone for Docker container
@@ -99,7 +104,7 @@ var configCmd = &cobra.Command{
 		appList := strings.Split(inputApps, ",")
 
 		// 判断应用输入是否正确
-		f := files.NewFile()
+		// f := files.NewFile()
 		for _, v := range constant.PHPs {
 			appDir := filepath.Join(global.Conf.System.BasePath, "app", v)
 			// 判断php应用时，目录结构单独处理

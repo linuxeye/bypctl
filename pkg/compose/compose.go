@@ -3,6 +3,10 @@ package compose
 import (
 	"bypctl/pkg/cmd"
 	"bypctl/pkg/global"
+	"bytes"
+	"fmt"
+	"github.com/gogf/gf/v2/util/gconv"
+	"os/exec"
 	"strings"
 )
 
@@ -104,6 +108,21 @@ func Restart(filePaths, args []string) error {
 func Operate(filePath, operation string) error {
 	err := cmd.ExecCmdOutput("docker-compose --env-file %s -f %s %s", global.Conf.System.EnvFile, filePath, operation)
 	return err
+}
+
+func Exec(filePaths []string, app, command string) error {
+	err := cmd.ExecCmdOutput("docker-compose --env-file %s %s exec %s %s", global.Conf.System.EnvFile, sliceToStrF(filePaths), app, command)
+	return err
+}
+
+func GetServices(filePaths []string) ([]string, error) {
+	command := exec.Command("bash", "-c", fmt.Sprintf("docker-compose --env-file %s %s ps --services", global.Conf.System.EnvFile, sliceToStrF(filePaths)))
+	if err := command.Run(); err != nil {
+		return nil, err
+	}
+	var stdout bytes.Buffer
+	command.Stdout = &stdout
+	return strings.Split(gconv.String(stdout), "\n"), nil
 }
 
 func sliceToStrF(list []string) string {

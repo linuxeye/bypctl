@@ -7,6 +7,7 @@ type Config struct {
 
 type SystemConfig struct {
 	BasePath        string // 基础目录，默认/opt/bypanel
+	PanelMd5        string
 	LogPath         string
 	Mode            string
 	Lang            string   // 语言

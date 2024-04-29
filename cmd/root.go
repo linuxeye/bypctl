@@ -72,10 +72,17 @@ func initConfig() {
 		useCfgFile = "/opt/bypanel/.env"
 	}
 
-	// 判断师傅存
+	// 判断是否存在
 	if !f.IsExist(useCfgFile) {
-		color.PrintRed(i18n.Tf("config_exist_err", useCfgFile))
-		os.Exit(1)
+		if f.IsExist("/opt/bypanel/env-example") {
+			if err := f.Copy("/opt/bypanel/env-example", useCfgFile); err != nil {
+				color.PrintRed(err.Error())
+				os.Exit(1)
+			}
+		} else {
+			color.PrintRed(i18n.Tf("install_err", useCfgFile))
+			os.Exit(1)
+		}
 	}
 
 	// 判断文件以.env结尾
@@ -96,6 +103,7 @@ func initConfig() {
 	global.Conf.Log.Level = logrus.DebugLevel.String()
 	global.Conf.System.Lang = viper.GetString("LANG")
 	global.Conf.System.BasePath = viper.GetString("BASE_PATH")
+	global.Conf.System.PanelMd5 = viper.GetString("PANEL_MD5")
 	global.Conf.System.LogPath = filepath.Join(global.Conf.System.BasePath, "log")
 	global.Conf.System.EnvFile = viper.ConfigFileUsed()
 	global.Conf.System.VolumePath = viper.GetString("VOLUME_PATH")
