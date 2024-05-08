@@ -38,13 +38,13 @@ type WebSiteTpl struct {
 // mkCfgCmd represents the config command
 var mkCfgCmd = &cobra.Command{
 	Use:   "mkcfg [WEB...]",
-	Short: i18n.Translate(`mkcfg_help`),
-	Long:  i18n.Translate(`mkcfg_help`),
+	Short: i18n.Translate("mkcfg_help", "Make web config."),
+	Long:  i18n.Translate("mkcfg_help", "Make web config."),
 	Run: func(cmd *cobra.Command, args []string) {
 		var webs []string
 		if len(args) > 0 {
 			if !util.IsSubSlice(constant.Webs, args) {
-				color.PrintRed(i18n.Tf("mkcfg_web_input_err", constant.Webs))
+				color.PrintRed(i18n.Tf("mkcfg_web_input_err", "Make web config, \nvalue range is: {{ .ValueRange }}. ", map[string]any{"ValueRange": constant.Webs}))
 				os.Exit(1)
 			}
 			webs = args
@@ -57,16 +57,16 @@ var mkCfgCmd = &cobra.Command{
 			}
 		}
 		if len(webs) == 0 {
-			color.PrintRed(i18n.Translate("mkcfg_web_err"))
+			color.PrintRed(i18n.Translate("mkcfg_web_err", "Parameter error or no web startup."))
 			os.Exit(1)
 		}
 
 		webSite := new(WebSiteTpl)
 		// 设置ssl
 		inputSSLs := []uint{1, 2, 3}
-		inputSSL := gconv.Uint(util.ReaderTf("mkcfg_ssl", 2))
+		inputSSL := gconv.Uint(util.ReaderTf("mkcfg_ssl", "What Are You Doing?\n\t1. Use HTTP Only\n\t2. Use your own SSL Certificate and Key\n\t3. Use Let's Encrypt to Create SSL Certificate and Key\nPlease input the correct option (default: {{ .Option }}): ", map[string]any{"Option": 2}))
 		if !util.SliceItemUintExist(inputSSLs, inputSSL) {
-			color.PrintRed(i18n.Tf("mkcfg_input_err", inputSSLs))
+			color.PrintRed(i18n.Tf("mkcfg_input_err", "Input error, the value should be set within the range: {{ .ValueRange }}", map[string]any{"ValueRange": inputSSL}))
 			os.Exit(1)
 		}
 
@@ -81,7 +81,7 @@ var mkCfgCmd = &cobra.Command{
 			webSite.PHPVer = PHPs[0]
 		} else if len(PHPs) > 1 {
 			defaultPHP := PHPs[0]
-			inputPHP := util.ReaderTf("mkcfg_select_php", PHPs, defaultPHP)
+			inputPHP := util.ReaderTf("mkcfg_select_php", "\nPlease enter the PHP version, the value range is: {{ .ValueRange }}, (default: {{ .DefaultValue }}): ", map[string]any{"ValueRange": PHPs, "DefaultValue": defaultPHP})
 			if len(inputPHP) == 0 {
 				inputPHP = defaultPHP
 			}
@@ -90,35 +90,35 @@ var mkCfgCmd = &cobra.Command{
 			}
 		}
 
-		inputDomains := strings.Split(util.ReaderTf("mkcfg_domain"), ",")
+		inputDomains := strings.Split(util.ReaderTf("mkcfg_domain", "\nPlease enter the domains (separate multiple domains with commas, e.g.: bypanel.com,www.bypanel.com): ", nil), ",")
 		for i := range inputDomains {
 			inputDomains[i] = strings.TrimSpace(inputDomains[i])
 		}
 
 		if !util.ValidateDomains(inputDomains) {
-			color.PrintRed(i18n.Translate("mkcfg_domain_err"))
+			color.PrintRed(i18n.Translate("mkcfg_domain_err", "Invalid domain format."))
 			os.Exit(1)
 		}
 
-		color.PrintGreen(i18n.Tf("mkcfg_domain_list", inputDomains))
+		color.PrintGreen(i18n.Tf("mkcfg_domain_list", "Domains: {{ .Domains }}", map[string]any{"Domains": inputDomains}))
 		webSite.ServerName = inputDomains[0]
 		if len(inputDomains) > 1 {
 			webSite.ServerAlias = inputDomains[1:]
 		}
 
 		defaultWebroot := filepath.Join(global.Conf.System.VolumePath, "webroot", inputDomains[0])
-		inputWebroot := util.ReaderTf("mkcfg_webroot", defaultWebroot)
+		inputWebroot := util.ReaderTf("mkcfg_webroot", "\nPlease enter the webroot directory of the domains(default: {{ .DefaultValue }}): ", map[string]any{"DefaultValue": defaultWebroot})
 		if len(inputWebroot) == 0 {
 			inputWebroot = defaultWebroot
 		}
 
 		if !strings.HasPrefix(inputWebroot, filepath.Join(global.Conf.System.VolumePath, "webroot")) {
-			color.PrintRed(i18n.Translate("reader_path_err"))
+			color.PrintRed(i18n.Translate("reader_path_err", "Input error, wrong path format"))
 			os.Exit(1)
 		}
 		webSite.WebRoot = filepath.Join("/var/www", filepath.Base(inputWebroot))
-		color.PrintGreen(i18n.Tf("mkcfg_domain_webroot", inputWebroot))
-		color.PrintYellow(i18n.Translate("mkcfg_webroot_permission"))
+		color.PrintGreen(i18n.Tf("mkcfg_domain_webroot", "\nDomain webroot directory: {{ .WebRoot }}", map[string]any{"WebRoot": inputWebroot}))
+		color.PrintYellow(i18n.Translate("mkcfg_webroot_permission", "\nCreate webroot directory......\nset permissions of webroot directory......"))
 
 		f := files.NewFile()
 		if err := f.CreateDir(inputWebroot, fs.ModeDir); err != nil {
@@ -132,7 +132,7 @@ var mkCfgCmd = &cobra.Command{
 
 		// Apache ServerAdmin
 		if webs[0] == "apache" {
-			email := util.ReaderTf("mkcfg_email")
+			email := util.ReaderTf("mkcfg_email", "\nPlease enter your Email: ", nil)
 			_, err := mail.ParseAddress(email)
 			if err != nil {
 				color.PrintRed(err.Error())
@@ -143,26 +143,26 @@ var mkCfgCmd = &cobra.Command{
 
 		if util.SliceItemUintExist([]uint{2, 3}, inputSSL) {
 			if util.SliceItemUintExist([]uint{2, 3}, inputSSL) {
-				country := util.ReaderTf("mkcfg_self_ssl_country")
+				country := util.ReaderTf("mkcfg_self_ssl_country", "\nYou are about to be asked to enter information that will be incorporated into your certificate request.\nWhat you are about to enter is what is called a Distinguished Name or a DN.\nThere are quite a few fields but you can leave some blank\nFor some fields there will be a default value,\nIf you enter '.', the field will be left blank.\n\nCountry Name (2 letter code) [CN]: ", nil)
 				if len(country) == 0 {
 					country = "CN"
 				}
-				province := util.ReaderTf("mkcfg_self_ssl_province")
+				province := util.ReaderTf("mkcfg_self_ssl_province", "\nState or Province Name (full name) [Shanghai]: ", nil)
 				if len(province) == 0 {
 					province = "Shanghai"
 				}
 
-				city := util.ReaderTf("mkcfg_self_ssl_city")
+				city := util.ReaderTf("mkcfg_self_ssl_city", "\nLocality Name (eg, city) [Shanghai]: ", nil)
 				if len(city) == 0 {
 					city = "Shanghai"
 				}
 
-				organization := util.ReaderTf("mkcfg_self_ssl_organization")
+				organization := util.ReaderTf("mkcfg_self_ssl_organization", "\nOrganization Name (eg, company) [Example Inc.]: ", nil)
 				if len(organization) == 0 {
 					organization = "Example Inc."
 				}
 
-				organizationUint := util.ReaderTf("mkcfg_self_ssl_organizationuint")
+				organizationUint := util.ReaderTf("mkcfg_self_ssl_organizationuint", "\nOrganizational Unit Name (eg, section) [IT Dept.]: ", nil)
 				if len(organizationUint) == 0 {
 					organizationUint = "IT Dept."
 				}
@@ -190,9 +190,9 @@ var mkCfgCmd = &cobra.Command{
 			var inputRedirectFlag string
 			if len(inputDomains) >= 2 {
 				if util.SliceItemUintExist([]uint{2, 3}, inputSSL) {
-					inputRedirectFlag = strings.ToLower(util.ReaderTf("mkcfg_redirect_flag", inputDomains[1:], inputDomains[0]))
+					inputRedirectFlag = strings.ToLower(util.ReaderTf("mkcfg_redirect_flag", "\nDo you want to redirect from {{ .MoreDomains }} to {{ .Domain }}？[y/n]: ", map[string]any{"MoreDomains": inputDomains[1:], "Domain": inputDomains[0]}))
 					if !util.SliceItemStrExist(constant.FlagYN, inputRedirectFlag) {
-						color.PrintRed(i18n.Tf("reader_input_err", constant.FlagYN))
+						color.PrintRed(i18n.Tf("reader_input_err", "Input error, the value should be set within the range: {{ .ValueRange }}", map[string]any{"ValueRange": constant.FlagYN}))
 					}
 				}
 			}
@@ -203,9 +203,9 @@ var mkCfgCmd = &cobra.Command{
 			// https跳转
 			var inputToHttpsFlag string
 			if util.SliceItemUintExist([]uint{2, 3}, inputSSL) {
-				inputToHttpsFlag = strings.ToLower(util.ReaderTf("mkcfg_to_https_flag"))
+				inputToHttpsFlag = strings.ToLower(util.ReaderTf("mkcfg_to_https_flag", "\nDo you want to redirect all HTTP requests to HTTPS? [y/n]: ", nil))
 				if !util.SliceItemStrExist(constant.FlagYN, inputToHttpsFlag) {
-					color.PrintRed(i18n.Tf("reader_input_err", constant.FlagYN))
+					color.PrintRed(i18n.Tf("reader_input_err", "Input error, the value should be set within the range: {{ .ValueRange }}", map[string]any{"ValueRange": constant.FlagYN}))
 				}
 			}
 
@@ -214,9 +214,9 @@ var mkCfgCmd = &cobra.Command{
 			}
 
 			// 防盗链
-			antiHotlinkFlag := strings.ToLower(util.ReaderTf("mkcfg_hotlink"))
+			antiHotlinkFlag := strings.ToLower(util.ReaderTf("mkcfg_hotlink", "\nDo you want to add hotlink protection? [y/n]: ", nil))
 			if !util.SliceItemStrExist(constant.FlagYN, antiHotlinkFlag) {
-				color.PrintRed(i18n.Tf("reader_input_err", constant.FlagYN))
+				color.PrintRed(i18n.Tf("reader_input_err", "Input error, the value should be set within the range: {{ .ValueRange }}", map[string]any{"ValueRange": constant.FlagYN}))
 				os.Exit(1)
 			}
 
@@ -225,13 +225,13 @@ var mkCfgCmd = &cobra.Command{
 				webSite.HotlinkDomains = strings.Join(util.GetUniqueDomains(inputDomains), " ")
 			}
 
-			inputRewriteName := strings.ToLower(util.ReaderTf("mkcfg_rewrite"))
+			inputRewriteName := strings.ToLower(util.ReaderTf("mkcfg_rewrite", "\nPlease input the rewrite of programme :\nwordpress,opencart,magento2,drupal,joomla,codeigniter,laravel\nthinkphp,discuz,typecho,ecshop,nextcloud,zblog,whmcs rewrite was exist.\n(Default rewrite: none): ", nil))
 			if len(inputRewriteName) == 0 {
 				inputRewriteName = "none"
 			}
 			rewriteFile := filepath.Join(global.Conf.System.BasePath, "cfg", webs[0], "rewrite", inputRewriteName+".conf")
 			if !f.IsExist(rewriteFile) {
-				color.PrintYellow(i18n.Tf("mkcfg_rewrite_file", rewriteFile))
+				color.PrintYellow(i18n.Tf("mkcfg_rewrite_file", "\nThe rewrite file does not exist, it will create {{ .RewriteFile }}, please add the rewrite rules to this file.", map[string]any{"RewriteFile": rewriteFile}))
 				if err := f.CreateFile(rewriteFile); err != nil {
 					color.PrintRed(err.Error())
 					os.Exit(1)
@@ -239,9 +239,9 @@ var mkCfgCmd = &cobra.Command{
 			}
 			webSite.Rewrite = inputRewriteName
 
-			nginxLogFlag := strings.ToLower(util.ReaderTf("mkcfg_nginx_log", webs[0]))
+			nginxLogFlag := strings.ToLower(util.ReaderTf("mkcfg_nginx_log", "\nDo you want to enable the {{ .App }} access log? [y/n]: ", map[string]any{"App": webs[0]}))
 			if !util.SliceItemStrExist(constant.FlagYN, nginxLogFlag) {
-				color.PrintRed(i18n.Tf("reader_input_err", constant.FlagYN))
+				color.PrintRed(i18n.Tf("reader_input_err", "Input error, the value should be set within the range: {{ .ValueRange }}", map[string]any{"ValueRange": constant.FlagYN}))
 				os.Exit(1)
 			}
 

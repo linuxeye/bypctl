@@ -1,4 +1,0 @@
-root_help = "bypanel deployment command management"
-cmd_pipe_err = "Unable to create standard output pipe: %s"
-cmd_start_err = "Unable to start the command: %s"
-cmd_exec_err = "Command execution failed: %s"

@@ -12,8 +12,8 @@ import (
 // startCmd represents the version command
 var startCmd = &cobra.Command{
 	Use:   "start [SERVICE...]",
-	Short: i18n.Translate(`start_help`),
-	Long:  i18n.Translate(`start_help`),
+	Short: i18n.Translate("start_help", "Start services"),
+	Long:  i18n.Translate("start_help", "Start services"),
 	Run: func(cmd *cobra.Command, args []string) {
 		if err := compose.Start(global.Conf.System.ComposeFiles, args); err != nil {
 			color.PrintRed(i18n.Tf("start_err", global.Conf.System.ComposeProfiles, err.Error()))
@@ -25,7 +25,7 @@ var startCmd = &cobra.Command{
 				apps = strings.Split(global.Conf.System.ComposeProfiles, ",")
 			}
 			for _, v := range apps {
-				color.PrintGreen(i18n.Tf("start_succ", v))
+				color.PrintGreen(i18n.Tf("start_succ", "✔ Container {{ .App }} Started", map[string]any{"App": v}))
 			}
 		}
 	},

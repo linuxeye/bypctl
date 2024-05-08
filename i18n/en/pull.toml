@@ -1,3 +1,0 @@
-pull_help = "Pull service images"
-pull_docker_err = "Pull %s image, error: %s"
-pull_docker_succ = "✔ %s Pulled"

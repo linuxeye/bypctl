@@ -1,3 +1,0 @@
-restart_help = "Restart service containers"
-restart_succ = "✔ Container %s Restarted"
-restart_err = "Restarted error: %s"

@@ -12,11 +12,11 @@ import (
 // restartCmd represents the version command
 var restartCmd = &cobra.Command{
 	Use:   "restart [SERVICE...]",
-	Short: i18n.Translate(`restart_help`),
-	Long:  i18n.Translate(`restart_help`),
+	Short: i18n.Translate("restart_help", "Restart service containers"),
+	Long:  i18n.Translate("restart_help", "Restart service containers"),
 	Run: func(cmd *cobra.Command, args []string) {
 		if err := compose.Restart(global.Conf.System.ComposeFiles, args); err != nil {
-			color.PrintRed(i18n.Tf("restart_err", err.Error()))
+			color.PrintRed(i18n.Tf("restart_err", "Restarted error: {{ .Err }}", map[string]any{"Err": err.Error()}))
 		} else {
 			var apps []string
 			if len(args) > 0 {
@@ -25,7 +25,7 @@ var restartCmd = &cobra.Command{
 				apps = strings.Split(global.Conf.System.ComposeProfiles, ",")
 			}
 			for _, v := range apps {
-				color.PrintGreen(i18n.Tf("restart_succ", v))
+				color.PrintGreen(i18n.Tf("restart_succ", "✔ Container {{ .App }} Restarted", map[string]interface{}{"App": v}))
 			}
 		}
 	},

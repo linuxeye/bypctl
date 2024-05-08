@@ -28,7 +28,7 @@ var (
 var rootCmd = &cobra.Command{
 	Use:   "bypctl",
 	Short: "bypctl",
-	Long:  i18n.Translate(`root_help`),
+	Long:  i18n.Translate("root_help", "bypanel deployment command management"),
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
 	Args: cobra.NoArgs,
@@ -80,14 +80,14 @@ func initConfig() {
 				os.Exit(1)
 			}
 		} else {
-			color.PrintRed(i18n.Tf("install_err", useCfgFile))
+			color.PrintRed(i18n.Tf("config_file_err", "{{ .CfgFile }} config file error, the config file must end with .env.", map[string]any{"CfgFile": useCfgFile}))
 			os.Exit(1)
 		}
 	}
 
 	// 判断文件以.env结尾
 	if !strings.HasSuffix(useCfgFile, ".env") {
-		color.PrintRed(i18n.Tf("config_file_err", useCfgFile))
+		color.PrintRed(i18n.Tf("config_file_err", "{{ .CfgFile }} config file error, the config file must end with .env.", map[string]any{"CfgFile": useCfgFile}))
 		os.Exit(1)
 	}
 
@@ -149,4 +149,5 @@ func initConfig() {
 	log.Init()
 	database.Init()
 	migration.Init()
+	// fmt.Println("global.Conf.System.Lang--->", global.Conf.System.Lang)
 }

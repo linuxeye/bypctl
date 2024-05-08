@@ -1,3 +1,0 @@
-down_help = "Stop and remove containers, networks"
-down_succ = "✔ Container %s Removed"
-down_err = "Stop and remove error: %s"

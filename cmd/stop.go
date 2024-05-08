@@ -12,11 +12,11 @@ import (
 // stopCmd represents the version command
 var stopCmd = &cobra.Command{
 	Use:   "stop [SERVICE...]",
-	Short: i18n.Translate(`stop_help`),
-	Long:  i18n.Translate(`stop_help`),
+	Short: i18n.Translate("stop_help", "Stop services"),
+	Long:  i18n.Translate("stop_help", "Stop services"),
 	Run: func(cmd *cobra.Command, args []string) {
 		if err := compose.Stop(global.Conf.System.ComposeFiles, args); err != nil {
-			color.PrintRed(i18n.Tf("stop_err", err.Error()))
+			color.PrintRed(i18n.Tf("stop_err", "Stop Container error: {{ .Err }}", map[string]any{"Err": err.Error()}))
 		} else {
 			var apps []string
 			if len(args) > 0 {
@@ -25,7 +25,7 @@ var stopCmd = &cobra.Command{
 				apps = strings.Split(global.Conf.System.ComposeProfiles, ",")
 			}
 			for _, v := range apps {
-				color.PrintGreen(i18n.Tf("stop_succ", v))
+				color.PrintGreen(i18n.Tf("stop_succ", "✔ Container {{ .App }} Stopped", map[string]any{"App": v}))
 			}
 		}
 		// fmt.Println("stdout--->", stdout)

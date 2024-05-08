@@ -1,2 +1,0 @@
-logs_help = "View output from containers"
-logs_follow_help = "Follow log output."

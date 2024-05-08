@@ -12,11 +12,11 @@ import (
 // pullCmd represents the version command
 var pullCmd = &cobra.Command{
 	Use:   "pull [SERVICE...]",
-	Short: i18n.Translate(`pull_help`),
-	Long:  i18n.Translate(`pull_help`),
+	Short: i18n.Translate("pull_help", "Pull service images"),
+	Long:  i18n.Translate("pull_help", "Pull service images"),
 	Run: func(cmd *cobra.Command, args []string) {
 		if err := compose.Pull(global.Conf.System.ComposeFiles, args); err != nil {
-			color.PrintRed(i18n.Tf("pull_docker_err", global.Conf.System.ComposeProfiles, err.Error()))
+			color.PrintRed(i18n.Tf("pull_docker_err", "Pull {{ .Apps }} image, error: {{ .Err }}", map[string]any{"Apps": global.Conf.System.ComposeProfiles, "Err": err.Error()}))
 		} else {
 			var apps []string
 			if len(args) > 0 {
@@ -25,7 +25,7 @@ var pullCmd = &cobra.Command{
 				apps = strings.Split(global.Conf.System.ComposeProfiles, ",")
 			}
 			for _, v := range apps {
-				color.PrintGreen(i18n.Tf("pull_docker_succ", v))
+				color.PrintGreen(i18n.Tf("pull_docker_succ", "✔ {{ .App }} Pulled", map[string]any{"App": v}))
 			}
 		}
 		// fmt.Println(stdout)

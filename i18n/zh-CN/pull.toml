@@ -1,3 +1,0 @@
-pull_help = "拉取服务镜像"
-pull_docker_err = "拉取 %s 镜像，报错: %s"
-pull_docker_succ = "✔ 拉取 %s"

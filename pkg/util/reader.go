@@ -8,9 +8,10 @@ import (
 	"strings"
 )
 
-func ReaderTf(format string, values ...any) string {
+func ReaderTf(msgId, msg string, data any) string {
+	// fmt.Println("global.Conf.System.Lang ReaderTf--->", global.Conf.System.Lang)
 	reader := bufio.NewReader(os.Stdin)
-	fmt.Print(i18n.Tf(format, values...))
+	fmt.Print(i18n.Tf(msgId, msg, data))
 	name, err := reader.ReadString('\n')
 	if err != nil {
 		return ""

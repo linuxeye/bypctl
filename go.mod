@@ -3,6 +3,7 @@ module bypctl
 go 1.22.2
 
 require (
+	github.com/BurntSushi/toml v1.3.2
 	github.com/fatih/color v1.16.0
 	github.com/glebarez/sqlite v1.11.0
 	github.com/go-acme/lego/v4 v4.16.1
@@ -10,18 +11,18 @@ require (
 	github.com/gogf/gf/v2 v2.7.0
 	github.com/klauspost/compress v1.17.8
 	github.com/mholt/archiver/v4 v4.0.0-alpha.8
+	github.com/nicksnyder/go-i18n/v2 v2.4.0
 	github.com/pkg/errors v0.9.1
 	github.com/sirupsen/logrus v1.9.3
 	github.com/spf13/afero v1.11.0
 	github.com/spf13/cobra v1.8.0
 	github.com/spf13/viper v1.18.2
-	golang.org/x/text v0.14.0
+	golang.org/x/text v0.15.0
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1
 	gorm.io/gorm v1.25.10
 )
 
 require (
-	github.com/BurntSushi/toml v1.3.2 // indirect
 	github.com/aliyun/alibaba-cloud-sdk-go v1.61.1755 // indirect
 	github.com/andybalholm/brotli v1.0.4 // indirect
 	github.com/bodgit/plumbing v1.2.0 // indirect

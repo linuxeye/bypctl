@@ -1,2 +1,0 @@
-ps_help = "List containers"
-ps_err = "List containers error: %s"
