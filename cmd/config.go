@@ -31,7 +31,7 @@ var configCmd = &cobra.Command{
 			inputLang = global.Conf.System.Lang
 		}
 		if !util.SliceItemStrExist(formatLang, inputLang) {
-			color.PrintRed(i18n.Tf("reader_input_err", "Input error, the value should be set within the range: {{ .ValueRange }}", map[string]any{"ValueRange": inputLang}))
+			color.PrintRed(i18n.Tf("reader_input_err", "Input error, the value should be set within the range: {{ .ValueRange }}", map[string]any{"ValueRange": formatLang}))
 			os.Exit(1)
 		}
 		if global.Conf.System.Lang != inputLang {
