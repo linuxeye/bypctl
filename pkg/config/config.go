@@ -10,7 +10,7 @@ type SystemConfig struct {
 	PanelMd5        string
 	LogPath         string
 	Mode            string
-	Lang            string   // 语言
+	Language        string   // 语言
 	EnvFile         string   // Compose环境变量文件
 	Uid             string   // Uid
 	Gid             string   // Uid

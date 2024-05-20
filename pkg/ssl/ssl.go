@@ -93,7 +93,7 @@ func GenerateSelfPem(selfSSL SelfSSL) error {
 	if err != nil {
 		return err
 	}
-	pem.Encode(keyOut, &pem.Block{Type: "EC PRIVATE KEY", Bytes: x509.MarshalPKCS1PrivateKey(privateKey)})
+	pem.Encode(keyOut, &pem.Block{Type: "RSA PRIVATE KEY", Bytes: x509.MarshalPKCS1PrivateKey(privateKey)})
 	keyOut.Close()
 	// fmt.Println("私钥文件生成成功: key.pem")
 	return nil

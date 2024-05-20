@@ -174,7 +174,7 @@ var mkCfgCmd = &cobra.Command{
 					Organization:     organization,
 					OrganizationUint: organizationUint,
 					Name:             inputDomains[0],
-					KeyType:          "P256",
+					KeyType:          "2048",
 					Province:         province,
 					City:             city,
 					CertificatePath:  filepath.Join(global.Conf.System.BasePath, "cfg", webs[0], "cert", inputDomains[0]+".crt"),
@@ -254,8 +254,8 @@ server {
   listen 80;
   listen [::]:80;
   {{- if .SSL }}
-  listen 443 ssl http2;
-  listen [::]:443 ssl http2;
+  listen 443 ssl;
+  listen [::]:443 ssl;
   ssl_certificate cert/{{ .ServerName }}.crt;
   ssl_certificate_key cert/{{ .ServerName }}.key;
   ssl_protocols TLSv1.2 TLSv1.3;

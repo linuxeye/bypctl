@@ -98,10 +98,9 @@ func initConfig() {
 		fmt.Println("Using config file:", viper.ConfigFileUsed())
 		// Unmarshal 将配置文件转成对象
 	}
-
 	global.Conf.System.Mode = logrus.DebugLevel.String()
 	global.Conf.Log.Level = logrus.DebugLevel.String()
-	global.Conf.System.Lang = viper.GetString("LANG")
+	global.Conf.System.Language = viper.GetString("LANGUAGE")
 	global.Conf.System.BasePath = viper.GetString("BASE_PATH")
 	global.Conf.System.PanelMd5 = viper.GetString("PANEL_MD5")
 	global.Conf.System.LogPath = filepath.Join(global.Conf.System.BasePath, "log")
@@ -149,5 +148,5 @@ func initConfig() {
 	log.Init()
 	database.Init()
 	migration.Init()
-	// fmt.Println("global.Conf.System.Lang--->", global.Conf.System.Lang)
+	// fmt.Println("global.Conf.System--->", global.Conf.System)
 }

@@ -1,4 +1,4 @@
-config_select_lang = "\n设置语言, 值设置范围是: {{ .ValueRange }}, 请输入语言(默认: {{ .DefaultValue }}): "
+config_select_language = "\n设置语言, 值设置范围是: {{ .ValueRange }}, 请输入语言(默认: {{ .DefaultValue }}): "
 config_bypanel_path = "\n设置bypanel安装路径，请输入bypanel路径(默认: {{ .BasePath }}): "
 reader_input_err = "输入错误, 值设置范围是: {{ .ValueRange }}"
 reader_path_err = "输入错误, 路径格式错误"

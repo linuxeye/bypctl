@@ -9,8 +9,8 @@ import (
 // versionCmd represents the version command
 var versionCmd = &cobra.Command{
 	Use:   "version",
-	Short: i18n.Translate("version_help", "Show the ByPanel version information"),
-	Long:  i18n.Translate("version_help", "Show the ByPanel version information"),
+	Short: i18n.Translate("version_help", "Show the bypanel version information"),
+	Long:  i18n.Translate("version_help", "Show the bypanel version information"),
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("v0.0.1")
 	},

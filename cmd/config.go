@@ -26,17 +26,17 @@ var configCmd = &cobra.Command{
 
 		// 设置语言
 		formatLang := []string{"en", "zh-CN"}
-		inputLang := util.ReaderTf("config_select_lang", "\nSet language, value range is: {{ .ValueRange }}. please enter the language (default: {{ .DefaultValue }}): ", map[string]any{"ValueRange": formatLang, "DefaultValue": global.Conf.System.Lang})
+		inputLang := util.ReaderTf("config_select_language", "\nSet language, value range is: {{ .ValueRange }}. please enter the language (default: {{ .DefaultValue }}): ", map[string]any{"ValueRange": formatLang, "DefaultValue": global.Conf.System.Language})
 		if len(inputLang) == 0 {
-			inputLang = global.Conf.System.Lang
+			inputLang = global.Conf.System.Language
 		}
 		if !util.SliceItemStrExist(formatLang, inputLang) {
 			color.PrintRed(i18n.Tf("reader_input_err", "Input error, the value should be set within the range: {{ .ValueRange }}", map[string]any{"ValueRange": formatLang}))
 			os.Exit(1)
 		}
-		if global.Conf.System.Lang != inputLang {
-			viper.Set("LANG", inputLang)
-			global.Conf.System.Lang = inputLang
+		if global.Conf.System.Language != inputLang {
+			viper.Set("LANGUAGE", inputLang)
+			global.Conf.System.Language = inputLang
 		}
 
 		// 设置bypanel路径
