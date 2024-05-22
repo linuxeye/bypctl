@@ -44,7 +44,7 @@ var mkCfgCmd = &cobra.Command{
 		var webs []string
 		if len(args) > 0 {
 			if !util.IsSubSlice(constant.Webs, args) {
-				color.PrintRed(i18n.Tf("mkcfg_web_input_err", "Make web config, \nvalue range is: {{ .ValueRange }}. ", map[string]any{"ValueRange": constant.Webs}))
+				color.PrintRed(i18n.Tf("web_input_err", "Make web config, \nvalue range is: {{ .ValueRange }}. ", map[string]any{"ValueRange": constant.Webs}))
 				os.Exit(1)
 			}
 			webs = args
@@ -57,7 +57,7 @@ var mkCfgCmd = &cobra.Command{
 			}
 		}
 		if len(webs) == 0 {
-			color.PrintRed(i18n.Translate("mkcfg_web_err", "Parameter error or no web startup."))
+			color.PrintRed(i18n.Translate("web_err", "Parameter error or no web startup."))
 			os.Exit(1)
 		}
 
@@ -249,8 +249,7 @@ var mkCfgCmd = &cobra.Command{
 				webSite.AccessLog = true
 			}
 
-			nginxConf := `
-server {
+			nginxConf := `server {
   listen 80;
   listen [::]:80;
   {{- if .SSL }}
@@ -338,8 +337,7 @@ server {
 			}
 		}
 		if webs[0] == "apache" {
-			apacheConf := `
-<VirtualHost *:80>
+			apacheConf := `<VirtualHost *:80>
   ServerAdmin {{ .Email }}
   DocumentRoot {{ .WebRoot }}
   ServerName {{ .ServerName }}

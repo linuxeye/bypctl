@@ -19,8 +19,6 @@ type SystemConfig struct {
 	ComposeProfiles string   // 启动项目
 	ComposeFiles    []string // compose文件
 	NginxVer        string   // Nginx版本
-	OpenRestyVer    string   // OpenResty版本
-	ApacheVer       string   // Apache版本
 	MySQLVer        string   // MySQL版本
 	MySQLRootPwd    string   // MySQL root密码
 	PGSQLVer        string   // pgsql版本

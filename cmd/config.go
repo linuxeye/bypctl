@@ -13,6 +13,7 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
+	"text/template"
 	"time"
 )
 
@@ -104,8 +105,7 @@ var configCmd = &cobra.Command{
 		appList := strings.Split(inputApps, ",")
 
 		// 判断应用输入是否正确
-		// f := files.NewFile()
-		for _, v := range constant.PHPs {
+		for _, v := range appList {
 			appDir := filepath.Join(global.Conf.System.BasePath, "app", v)
 			// 判断php应用时，目录结构单独处理
 			if util.SliceItemStrExist(constant.PHPs, v) {
@@ -312,6 +312,130 @@ var configCmd = &cobra.Command{
 			if global.Conf.System.MemcachedVer != inputMemcachedLVer {
 				viper.Set("MEMCACHED_SERVER", inputMemcachedLVer)
 				global.Conf.System.MemcachedVer = inputMemcachedLVer
+			}
+		}
+
+		// update default conf
+		type WebDefaultTpl struct {
+			Web              string
+			EnablePHPMyAdmin bool
+			PHPVer           string
+		}
+
+		webDefault := new(WebDefaultTpl)
+		for _, app := range appList {
+			if util.SliceItemStrExist([]string{"nginx", "openresty"}, app) {
+				webDefault.Web = app
+			}
+			if app == "apache" {
+				webDefault.Web = app
+			}
+			if app == "phpmyadmin" {
+				webDefault.EnablePHPMyAdmin = true
+			}
+			if util.SliceItemStrExist(constant.PHPs, app) {
+				webDefault.PHPVer = app
+			}
+		}
+		// update nginx default.conf
+		if util.SliceItemStrExist([]string{"nginx", "openresty"}, webDefault.Web) {
+			nginxConf := `server {
+  listen 80;
+  index index.html index.htm index.php;
+  server_name _;
+  root /var/www/default;
+
+  #error_page 404 /404.html;
+  #error_page 502 /502.html;
+  {{ if .EnablePHPMyAdmin }}
+  include phpmyadmin.conf;
+  {{ end }}
+  {{ if .PHPVer }}
+  include enable-{{ .PHPVer }}.conf;
+  {{ end }}
+  location ~ .*\.(gif|jpg|jpeg|png|bmp|swf|flv|mp4|ico)$ {
+    expires 30d;
+    access_log off;
+  }
+
+  location ~ .*\.(js|css)?$ {
+    expires 7d;
+    access_log off;
+  }
+
+  location ~ /(\.user\.ini|\.ht|\.git|\.svn|\.project|LICENSE|README\.md) {
+    deny all;
+  }
+
+  location /.well-known {
+    allow all;
+  }
+}
+`
+			nginxTpl, err := template.New("ngx").Parse(nginxConf)
+			if err != nil {
+				color.PrintRed(err.Error())
+			}
+
+			fn, err := os.Create(filepath.Join(global.Conf.System.BasePath, "cfg", webDefault.Web, "conf.d", "default.conf"))
+			if err != nil {
+				color.PrintRed(err.Error())
+			}
+			defer fn.Close()
+
+			// fmt.Println("ngx----->", gconv.String(ngx))
+			if err = nginxTpl.Execute(fn, webDefault); err != nil {
+				color.PrintRed(err.Error())
+			}
+		}
+
+		if webDefault.Web == "apache" {
+			apacheConf := `<VirtualHost *:80>
+    ServerAdmin admin@example.com
+    DocumentRoot /var/www/default
+    ServerName 127.0.0.1
+    ErrorLog /var/log/httpd/error_apache.log
+    CustomLog /var/log/httpd/access_apache.log common
+    <Files ~ (\.user.ini|\.htaccess|\.git|\.svn|\.project|LICENSE|README.md)$>
+        Order allow,deny
+        Deny from all
+    </Files>
+	{{- if .EnablePHPMyAdmin }}
+    include /etc/httpd/phpmyadmin.conf
+	{{- end }}
+	{{- if .PHPVer }}
+    include /etc/httpd/enable-{{ .PHPVer }}.conf
+	{{- end }}
+    <Directory /var/www/default>
+        SetOutputFilter DEFLATE
+        Options FollowSymLinks ExecCGI
+        Require all granted
+        AllowOverride All
+        Order allow,deny
+        Allow from all
+        DirectoryIndex index.html index.php
+    </Directory>
+    <Location /server-status>
+        SetHandler server-status
+        Order Deny,Allow
+        Deny from all
+        Allow from 127.0.0.1
+    </Location>
+</VirtualHost>
+`
+			apacheTpl, err := template.New("apache").Parse(apacheConf)
+			if err != nil {
+				color.PrintRed(err.Error())
+			}
+
+			fn, err := os.Create(filepath.Join(global.Conf.System.BasePath, "cfg", "apache", "conf.d", "0.conf"))
+			if err != nil {
+				color.PrintRed(err.Error())
+			}
+			defer fn.Close()
+
+			if err = apacheTpl.Execute(fn, webDefault); err != nil {
+				color.PrintRed(err.Error())
 			}
 		}
 
