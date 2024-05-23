@@ -10,7 +10,6 @@ import (
 	"bypctl/pkg/log"
 	"bypctl/pkg/migration"
 	"bypctl/pkg/util"
-	"fmt"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -95,7 +94,7 @@ func initConfig() {
 	viper.AutomaticEnv() // read in environment variables that match
 	// If a config file is found, read it in.
 	if err := viper.ReadInConfig(); err == nil {
-		fmt.Println("Using config file:", viper.ConfigFileUsed())
+		color.PrintYellow(i18n.Tf("config_using", "Using config file: {{ .CfgFile }}", map[string]any{"CfgFile": useCfgFile}))
 		// Unmarshal 将配置文件转成对象
 	}
 	global.Conf.System.Mode = logrus.DebugLevel.String()
