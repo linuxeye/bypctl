@@ -101,10 +101,12 @@ jobs:
             \mv bypctl /data/webroot/mirrors/bypanel/bypctl-linux-amd64
             cd /data/webroot/mirrors/bypanel
             sed -i "s@.*bypctl-linux-amd64@$(md5sum bypctl-linux-amd64)@" /data/webroot/mirrors/md5sum.txt
+            cd /tmp/dist/ || exit
             ls -t bypctl-*-linux-arm64.tar.gz | tail -n +2 | xargs rm -f
             tar -zxvf bypctl-*-linux-arm64.tar.gz
             cd bypctl-*-linux-arm64
             \mv bypctl /data/webroot/mirrors/bypanel/bypctl-linux-arm64
             cd /data/webroot/mirrors/bypanel
             sed -i "s@.*bypctl-linux-arm64@$(md5sum bypctl-linux-arm64)@" /data/webroot/mirrors/md5sum.txt
+            chown -R 1000:1000 /data/webroot/mirrors/bypanel
             rm -rf /tmp/dist
