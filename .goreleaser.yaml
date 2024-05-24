@@ -47,7 +47,7 @@ upx:
 
 archives:
   - format: tar.gz
-    name_template: "bypanel-v{{ .Version }}-{{ .Os }}-{{ .Arch }}{{- if .Arm }}v{{ .Arm }}{{ end }}"
+    name_template: "bypctl-v{{ .Version }}-{{ .Os }}-{{ .Arch }}{{- if .Arm }}v{{ .Arm }}{{ end }}"
     wrap_in_directory: true
     files:
       - README.md
