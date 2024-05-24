@@ -20,8 +20,8 @@ import (
 // configCmd represents the config command
 var configCmd = &cobra.Command{
 	Use:   "config",
-	Short: i18n.Translate("config_help", "Configuration of deployment parameters for bypanel."),
-	Long:  i18n.Translate("config_help", "Configuration of deployment parameters for bypanel."),
+	Short: i18n.Translate("config_help", "Configuration of deployment parameters for bypanel"),
+	Long:  i18n.Translate("config_help", "Configuration of deployment parameters for bypanel"),
 	Args:  cobra.NoArgs,
 	Run: func(cmd *cobra.Command, args []string) {
 

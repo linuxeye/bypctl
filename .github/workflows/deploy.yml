@@ -1,0 +1,107 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+    tags:
+      - "v*"
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  id-token: write
+  packages: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      flags: ""
+
+    steps:
+      - name: Not tags
+        if: ${{ !startsWith(github.ref, 'refs/tags/v') }}
+        run: echo "flags=--snapshot" >> $GITHUB_ENV
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          # ${{ github.token }} is scoped to the current repositor
+          token: ${{ secrets.GH_PAT }}
+          submodules: true
+
+      - name: Setup Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: "1.23.x"
+
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        id: cache-go
+        with:
+          path: |
+            vendor
+            go.sum
+          key: ${{ runner.os }}-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+
+      - name: Install dependencies
+        if: steps.cache-go.outputs.cache-hit != 'true'
+        run: go get .
+
+      - name: Build
+        run: make build
+
+      - name: Run GoReleaser
+        timeout-minutes: 60
+        uses: goreleaser/goreleaser-action@v5
+        with:
+          version: latest
+          args: release --clean ${{ env.flags }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # - uses: actions/upload-artifact@v4
+      #   id: artifact-upload-step
+      #   with:
+      #     name: bypanel
+      #     path: |
+      #       dist/checksums.txt
+      #       dist/*amd64.tar.gz
+
+      # - name: Output artifact ID
+      #   run:  echo 'Artifact ID is ${{ steps.artifact-upload-step.outputs.artifact-id }}'
+
+      - name: Scp file via ssh to server
+        uses: appleboy/scp-action@v0.1.4
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.KEY }}
+          passphrase: ${{ secrets.PASSPHRASE }}
+          source: "dist/*-linux-amd64.tar.gz"
+          target: "/tmp/"
+
+      - name: Executing remote ssh commands
+        # env:
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.KEY }}
+          passphrase: ${{ secrets.PASSPHRASE }}
+          # envs:
+          script: |
+            cd /tmp/dist/ || exit
+            TARGET_OS=`uname | tr '[:upper:]' '[:lower:]'`
+            TARGET_ARCH=`uname -m`
+            [ "${TARGET_ARCH}" == 'x86_64' ] && TARGET_ARCH=amd64
+            ls -t bypctl-*-${TARGET_OS}-${TARGET_ARCH}.tar.gz | tail -n +2 | xargs rm -f
+            tar -zxvf bypctl-*-${TARGET_OS}-${TARGET_ARCH}.tar.gz
+            cd bypctl-*-${TARGET_OS}-${TARGET_ARCH}
+            \mv bypctl /data/webroot/mirrors/bypanel/bypctl-${TARGET_OS}-${TARGET_ARCH}
+            cd /data/webroot/mirrors/bypanel
+            sed -i "s@.*bypctl-${TARGET_OS}-${TARGET_ARCH}@$(md5sum bypctl-${TARGET_OS}-${TARGET_ARCH})@" /data/webroot/mirrors/md5sum.txt
+            rm -rf /tmp/dist

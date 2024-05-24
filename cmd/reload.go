@@ -15,8 +15,8 @@ import (
 // reloadCmd represents the version command
 var reloadCmd = &cobra.Command{
 	Use:   "reload [SERVICE...]",
-	Short: i18n.Translate("reload_help", "Reload service containers"),
-	Long:  i18n.Translate("reload_help", "Reload service containers"),
+	Short: i18n.Translate("reload_help", "Reload Web service"),
+	Long:  i18n.Translate("reload_help", "Reload Web service"),
 	Run: func(cmd *cobra.Command, args []string) {
 		var webs []string
 		if len(args) > 0 {

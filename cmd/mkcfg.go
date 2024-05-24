@@ -38,8 +38,8 @@ type WebSiteTpl struct {
 // mkCfgCmd represents the config command
 var mkCfgCmd = &cobra.Command{
 	Use:   "mkcfg [WEB...]",
-	Short: i18n.Translate("mkcfg_help", "Make web config."),
-	Long:  i18n.Translate("mkcfg_help", "Make web config."),
+	Short: i18n.Translate("mkcfg_help", "Make web config"),
+	Long:  i18n.Translate("mkcfg_help", "Make web config"),
 	Run: func(cmd *cobra.Command, args []string) {
 		var webs []string
 		if len(args) > 0 {
