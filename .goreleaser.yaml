@@ -39,7 +39,7 @@ upx:
     #   - v1
     # Compress argument.
     # Valid options are from '1' (faster) to '9' (better), and 'best'.
-    compress: '5'
+    compress: '9'
     # Whether to try LZMA (slower).
     lzma: false
     # Whether to try all methods and filters (slow).
