@@ -12,9 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package semconv implements OpenTelemetry semantic conventions.
-//
-// OpenTelemetry semantic conventions are agreed standardized naming
-// patterns for OpenTelemetry things. This package represents the conventions
-// as of the v1.17.0 version of the OpenTelemetry specification.
-package semconv // import "go.opentelemetry.io/otel/semconv/v1.17.0"
+//go:build darwin || dragonfly || freebsd || netbsd || openbsd || solaris
+
+package resource // import "go.opentelemetry.io/otel/sdk/resource"
+
+import "os/exec"
+
+func execCommand(name string, arg ...string) (string, error) {
+	cmd := exec.Command(name, arg...)
+	b, err := cmd.Output()
+	if err != nil {
+		return "", err
+	}
+
+	return string(b), nil
+}

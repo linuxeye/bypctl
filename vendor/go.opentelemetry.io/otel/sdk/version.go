@@ -12,10 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package semconv // import "go.opentelemetry.io/otel/semconv/v1.17.0"
+package sdk // import "go.opentelemetry.io/otel/sdk"
 
-// HTTP scheme attributes.
-var (
-	HTTPSchemeHTTP  = HTTPSchemeKey.String("http")
-	HTTPSchemeHTTPS = HTTPSchemeKey.String("https")
-)
+// Version is the current release version of the OpenTelemetry SDK in use.
+func Version() string {
+	return "1.24.0"
+}

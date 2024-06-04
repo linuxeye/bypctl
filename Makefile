@@ -21,6 +21,7 @@ build:
 init:
 	rm -rf go.mod go.sum vendor
 	go mod init bypctl
+	go mod edit -replace=go.opentelemetry.io/otel/sdk@v1.14.0=go.opentelemetry.io/otel/sdk@v1.24.0
 	go mod tidy
 	go mod vendor
 

@@ -12,17 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package internal // import "go.opentelemetry.io/otel/sdk/internal"
+package semconv // import "go.opentelemetry.io/otel/semconv/v1.24.0"
 
-import "time"
-
-// MonotonicEndTime returns the end time at present
-// but offset from start, monotonically.
-//
-// The monotonic clock is used in subtractions hence
-// the duration since start added back to start gives
-// end as a monotonic time.
-// See https://golang.org/pkg/time/#hdr-Monotonic_Clocks
-func MonotonicEndTime(start time.Time) time.Time {
-	return start.Add(time.Since(start))
-}
+const (
+	// ExceptionEventName is the name of the Span event representing an exception.
+	ExceptionEventName = "exception"
+)

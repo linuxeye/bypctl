@@ -2,6 +2,8 @@ module bypctl
 
 go 1.22.3
 
+replace go.opentelemetry.io/otel/sdk v1.14.0 => go.opentelemetry.io/otel/sdk v1.24.0
+
 require (
 	github.com/fatih/color v1.17.0
 	github.com/glebarez/sqlite v1.11.0
