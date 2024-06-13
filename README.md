@@ -15,7 +15,6 @@ Install Recommend: `curl https://raw.githubusercontent.com/linuxeye/bypanel/main
 bypctl help
 ```
 ```
-Using config file: /opt/bypanel/.env
 bypanel deployment command management
 
 Usage:
@@ -25,6 +24,7 @@ Usage:
 Available Commands:
   config      Configuration of deployment parameters for bypanel
   down        Stop and remove containers, networks
+  exec        Execute a command in a running container
   help        Help about any command
   logs        View output from containers
   mkcfg       Make web config
