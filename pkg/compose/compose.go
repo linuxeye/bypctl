@@ -21,53 +21,6 @@ func Ps(filePaths []string, args []string) error {
 }
 
 func Up(filePaths, args []string, detachMode bool) error {
-	// fmt.Println("filePaths---->", filePaths)
-	// projectOptions, err := cli.NewProjectOptions(
-	// 	filePaths,
-	// 	cli.WithDiscardEnvFile,
-	// 	cli.WithEnvFiles(global.Conf.System.EnvFile),
-	// 	cli.WithDotEnv,
-	// )
-	// if err != nil {
-	// 	return err
-	// }
-	// ctx := context.Background()
-	// p, err := projectOptions.LoadProject(ctx)
-	// if err != nil {
-	// 	return err
-	// }
-	//
-	// dockerCli, err := command.NewDockerCli()
-	// if err != nil {
-	// 	return err
-	// }
-	// clientOptions := flags.ClientOptions{
-	// 	Hosts:     []string{client.DefaultDockerHost},
-	// 	LogLevel:  "debug",
-	// 	TLS:       false,
-	// 	TLSVerify: false,
-	// }
-	//
-	// if err := dockerCli.Initialize(&clientOptions); err != nil {
-	// 	return err
-	// }
-	// newComposeService := pkgCompose.NewComposeService(dockerCli)
-	// upOptions := api.UpOptions{
-	// 	Create: api.CreateOptions{},
-	// 	Start: api.StartOptions{
-	// 		Project: p,
-	// 		Wait:    true,
-	// 	},
-	// }
-	// if err := newComposeService.Up(ctx, p, upOptions); err != nil {
-	// 	return err
-	// }
-
-	// yaml, err := p.MarshalYAML()
-	// if err != nil {
-	// 	return "", err
-	// }
-	// fmt.Println("yaml---->\n", gconv.String(yaml))
 	var detach string
 	if detachMode {
 		detach = "-d"

@@ -66,4 +66,7 @@ upgrade_err = "升级失败, bypanel不存在"
 upgrade_ing = "升级进行中..."
 upgrade_warn = "您的bypanel已经是最新版本或者不需要升级! "
 upgrade_succ = "祝贺! bypanel升级成功"
+exec_help = "在正在运行的容器中执行命令"
+exec_docker_err = "执行{{ .Apps }}，报错: {{ .Err }}"
+exec_args_err = "至少2个参数, 第一个参数为服务名,第二个参数为命令"
 
